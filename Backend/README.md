@@ -143,3 +143,98 @@ curl -X POST http://localhost:3000/users/login \
 - `400`: Validation errors
 - `401`: Invalid credentials
 - `500`: Server error
+
+---
+
+## User Profile
+
+### `GET /users/profile`
+
+Get current user's profile information. Requires authentication.
+
+#### Request Headers
+```
+Authorization: Bearer <jwt_token>
+```
+*OR*
+```
+Cookie: token=<jwt_token>
+```
+
+#### Example Request
+```bash
+curl -X GET http://localhost:3000/users/profile \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+#### Response
+
+**Success (200)**
+```json
+{
+  "_id": "64a1b2c3d4e5f6789abcdef0",
+  "fullname": {
+    "firstname": "John",
+    "lastname": "Doe"
+  },
+  "email": "john.doe@example.com",
+  "socketId": null,
+  "__v": 0
+}
+```
+
+**Error (401) - Unauthorized**
+```json
+{
+  "message": "Unauthorized"
+}
+```
+
+#### Status Codes
+- `200`: Profile retrieved successfully
+- `401`: Invalid or missing token
+- `500`: Server error
+
+---
+
+## User Logout
+
+### `GET /users/logout`
+
+Logout user and blacklist the JWT token. Requires authentication.
+
+#### Request Headers
+```
+Authorization: Bearer <jwt_token>
+```
+*OR*
+```
+Cookie: token=<jwt_token>
+```
+
+#### Example Request
+```bash
+curl -X GET http://localhost:3000/users/logout \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+#### Response
+
+**Success (200)**
+```json
+{
+  "message": "Logged out successfully"
+}
+```
+
+**Error (401) - Unauthorized**
+```json
+{
+  "message": "Unauthorized"
+}
+```
+
+#### Status Codes
+- `200`: Logout successful
+- `401`: Invalid or missing token
+- `500`: Server error
