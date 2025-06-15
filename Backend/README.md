@@ -344,3 +344,190 @@ curl -X POST http://localhost:3000/captain/register \
 - `500`: Server error
 
 ---
+
+## Captain Login
+
+### `POST /captain/login`
+
+Login existing captain and get JWT token.
+
+#### Request Body
+```json
+{
+  "email": "string",
+  "password": "string"
+}
+```
+
+#### Validation Rules
+- `email`: Required, valid email format
+- `password`: Required, min 6 characters
+
+#### Example Request
+```bash
+curl -X POST http://localhost:3000/captain/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "john.doe@example.com",
+    "password": "password123"
+  }'
+```
+
+#### Response
+
+**Success (200)**
+```json
+{
+  "captain": {
+    "_id": "64a1b2c3d4e5f6789abcdef0",
+    "fullname": {
+      "firstname": "John",
+      "lastname": "Doe"
+    },
+    "email": "john.doe@example.com",
+    "status": "inactive",
+    "vehicle": {
+      "color": "Red",
+      "plate": "ABC123",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+**Error (400) - Validation Error**
+```json
+{
+  "errors": [
+    {
+      "msg": "Invalid email format",
+      "path": "email"
+    }
+  ]
+}
+```
+
+**Error (401) - Authentication Error**
+```json
+{
+  "message": "Invalid email or password"
+}
+```
+
+#### Status Codes
+- `200`: Login successful
+- `400`: Validation errors
+- `401`: Invalid credentials
+- `500`: Server error
+
+---
+
+## Captain Profile
+
+### `GET /captain/profile`
+
+Get current captain's profile information. Requires authentication.
+
+#### Request Headers
+```
+Authorization: Bearer <jwt_token>
+```
+*OR*
+```
+Cookie: token=<jwt_token>
+```
+
+#### Example Request
+```bash
+curl -X GET http://localhost:3000/captain/profile \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+#### Response
+
+**Success (200)**
+```json
+{
+  "captain": {
+    "_id": "64a1b2c3d4e5f6789abcdef0",
+    "fullname": {
+      "firstname": "John",
+      "lastname": "Doe"
+    },
+    "email": "john.doe@example.com",
+    "status": "inactive",
+    "vehicle": {
+      "color": "Red",
+      "plate": "ABC123",
+      "capacity": 4,
+      "vehicleType": "car"
+    },
+    "location": {
+      "lat": null,
+      "lng": null
+    },
+    "socketId": null,
+    "__v": 0
+  }
+}
+```
+
+**Error (401) - Unauthorized**
+```json
+{
+  "message": "Unauthorized"
+}
+```
+
+#### Status Codes
+- `200`: Profile retrieved successfully
+- `401`: Invalid or missing token
+- `500`: Server error
+
+---
+
+## Captain Logout
+
+### `GET /captain/logout`
+
+Logout captain and blacklist the JWT token. Requires authentication.
+
+#### Request Headers
+```
+Authorization: Bearer <jwt_token>
+```
+*OR*
+```
+Cookie: token=<jwt_token>
+```
+
+#### Example Request
+```bash
+curl -X GET http://localhost:3000/captain/logout \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+#### Response
+
+**Success (200)**
+```json
+{
+  "message": "Logged out successfully"
+}
+```
+
+**Error (401) - Unauthorized**
+```json
+{
+  "message": "Unauthorized"
+}
+```
+
+#### Status Codes
+- `200`: Logout successful
+- `401`: Invalid or missing token
+- `500`: Server error
+
+---
