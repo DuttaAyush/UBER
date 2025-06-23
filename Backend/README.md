@@ -55,18 +55,6 @@ curl -X POST http://localhost:3000/users/register \
 }
 ```
 
-**Error (400)**
-```json
-{
-  "errors": [
-    {
-      "msg": "First name must be at least 3 characters long",
-      "path": "fullname.firstname"
-    }
-  ]
-}
-```
-
 #### Status Codes
 - `201`: User created successfully
 - `400`: Validation errors
@@ -119,25 +107,6 @@ curl -X POST http://localhost:3000/users/login \
 }
 ```
 
-**Error (400) - Validation Error**
-```json
-{
-  "errors": [
-    {
-      "msg": "Invalid email",
-      "path": "email"
-    }
-  ]
-}
-```
-
-**Error (401) - Authentication Error**
-```json
-{
-  "message": "Invalid email or password"
-}
-```
-
 #### Status Codes
 - `200`: Login successful
 - `400`: Validation errors
@@ -183,13 +152,6 @@ curl -X GET http://localhost:3000/users/profile \
 }
 ```
 
-**Error (401) - Unauthorized**
-```json
-{
-  "message": "Unauthorized"
-}
-```
-
 #### Status Codes
 - `200`: Profile retrieved successfully
 - `401`: Invalid or missing token
@@ -224,13 +186,6 @@ curl -X GET http://localhost:3000/users/logout \
 ```json
 {
   "message": "Logged out successfully"
-}
-```
-
-**Error (401) - Unauthorized**
-```json
-{
-  "message": "Unauthorized"
 }
 ```
 
@@ -319,25 +274,6 @@ curl -X POST http://localhost:3000/captain/register \
 }
 ```
 
-**Error (400) - Validation Error**
-```json
-{
-  "errors": [
-    {
-      "msg": "First name must be at least 3 characters long",
-      "path": "fullname.firstname"
-    }
-  ]
-}
-```
-
-**Error (400) - Captain Already Exists**
-```json
-{
-  "message": "Captain already exists"
-}
-```
-
 #### Status Codes
 - `201`: Captain created successfully
 - `400`: Validation errors or captain already exists
@@ -394,25 +330,6 @@ curl -X POST http://localhost:3000/captain/login \
     }
   },
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
-**Error (400) - Validation Error**
-```json
-{
-  "errors": [
-    {
-      "msg": "Invalid email format",
-      "path": "email"
-    }
-  ]
-}
-```
-
-**Error (401) - Authentication Error**
-```json
-{
-  "message": "Invalid email or password"
 }
 ```
 
@@ -474,13 +391,6 @@ curl -X GET http://localhost:3000/captain/profile \
 }
 ```
 
-**Error (401) - Unauthorized**
-```json
-{
-  "message": "Unauthorized"
-}
-```
-
 #### Status Codes
 - `200`: Profile retrieved successfully
 - `401`: Invalid or missing token
@@ -518,16 +428,297 @@ curl -X GET http://localhost:3000/captain/logout \
 }
 ```
 
-**Error (401) - Unauthorized**
+#### Status Codes
+- `200`: Logout successful
+- `401`: Invalid or missing token
+- `500`: Server error
+
+---
+
+## Get Address Coordinates
+
+### `GET /maps/get-coordinates`
+
+Get latitude and longitude coordinates for a given address using Google Maps API. Requires authentication.
+
+#### Request Headers
+```
+Authorization: Bearer <jwt_token>
+```
+*OR*
+```
+Cookie: token=<jwt_token>
+```
+
+#### Query Parameters
+- `address`: Required, string, min 3 characters - The address to get coordinates for
+
+#### Validation Rules
+- `address`: Required, min 3 characters
+
+#### Example Request
+```bash
+curl -X GET "http://localhost:3000/maps/get-coordinates?address=New%20York%20City" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+#### Response
+
+**Success (200)**
 ```json
 {
-  "message": "Unauthorized"
+  "ltg": 40.7127753,
+  "lng": -74.0059728
 }
 ```
 
 #### Status Codes
-- `200`: Logout successful
+- `200`: Coordinates retrieved successfully
+- `400`: Validation errors
 - `401`: Invalid or missing token
+- `404`: Coordinate not found
+- `500`: Server error
+
+---
+
+## Get Distance and Time
+
+### `GET /maps/get-distance-time`
+
+Get distance and estimated travel time between two locations using Google Maps API. Requires authentication.
+
+#### Request Headers
+```
+Authorization: Bearer <jwt_token>
+```
+*OR*
+```
+Cookie: token=<jwt_token>
+```
+
+#### Query Parameters
+- `origin`: Required, string, min 3 characters - Starting location
+- `destination`: Required, string, min 3 characters - Destination location
+
+#### Validation Rules
+- `origin`: Required, min 3 characters
+- `destination`: Required, min 3 characters
+
+#### Example Request
+```bash
+curl -X GET "http://localhost:3000/maps/get-distance-time?origin=New%20York&destination=Los%20Angeles" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+#### Response
+
+**Success (200)**
+```json
+{
+  "distance": {
+    "text": "2,789 mi",
+    "value": 4487135
+  },
+  "duration": {
+    "text": "1 day 16 hours",
+    "value": 145234
+  },
+  "status": "OK"
+}
+```
+
+#### Status Codes
+- `200`: Distance and time retrieved successfully
+- `400`: Validation errors
+- `401`: Invalid or missing token
+- `404`: Internal Server Error
+- `500`: Server error
+
+---
+
+## Get Autocomplete Suggestions
+
+### `GET /maps/get-suggestions`
+
+Get autocomplete suggestions for location input using Google Maps Places API. Requires authentication.
+
+#### Request Headers
+```
+Authorization: Bearer <jwt_token>
+```
+*OR*
+```
+Cookie: token=<jwt_token>
+```
+
+#### Query Parameters
+- `input`: Required, string, min 3 characters - Search input text
+
+#### Validation Rules
+- `input`: Required, min 3 characters
+
+#### Example Request
+```bash
+curl -X GET "http://localhost:3000/maps/get-suggestions?input=New%20York" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+#### Response
+
+**Success (200)**
+```json
+[
+  {
+    "description": "New York, NY, USA",
+    "matched_substrings": [
+      {
+        "length": 8,
+        "offset": 0
+      }
+    ],
+    "place_id": "ChIJOwg_06VPwokRYv534QaPC8g",
+    "reference": "ChIJOwg_06VPwokRYv534QaPC8g",
+    "structured_formatting": {
+      "main_text": "New York",
+      "main_text_matched_substrings": [
+        {
+          "length": 8,
+          "offset": 0
+        }
+      ],
+      "secondary_text": "NY, USA"
+    },
+    "terms": [
+      {
+        "offset": 0,
+        "value": "New York"
+      },
+      {
+        "offset": 10,
+        "value": "NY"
+      },
+      {
+        "offset": 14,
+        "value": "USA"
+      }
+    ],
+    "types": [
+      "locality",
+      "political",
+      "geocode"
+    ]
+  }
+]
+```
+
+#### Status Codes
+- `200`: Suggestions retrieved successfully
+- `400`: Validation errors
+- `401`: Invalid or missing token
+- `404`: Coordinate not found
+- `500`: Server error
+
+---
+
+## Create Ride
+
+### `POST /rides/create`
+
+Create a new ride request with pickup and destination locations. Calculates fare automatically based on distance and vehicle type. Requires authentication.
+
+#### Request Headers
+```
+Authorization: Bearer <jwt_token>
+```
+*OR*
+```
+Cookie: token=<jwt_token>
+```
+
+#### Request Body
+```json
+{
+  "pickup": "string",
+  "destination": "string",
+  "vehicleType": "string"
+}
+```
+
+#### Validation Rules
+- `pickup`: Required, string, min 3 characters - Pickup location address
+- `destination`: Required, string, min 3 characters - Destination address
+- `vehicleType`: Required, must be one of: "auto", "car", "moto"
+
+#### Example Request
+```bash
+curl -X POST http://localhost:3000/rides/create \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "pickup": "Times Square, New York",
+    "destination": "Central Park, New York",
+    "vehicleType": "car"
+  }'
+```
+
+#### Response
+
+**Success (201)**
+```json
+{
+  "_id": "64a1b2c3d4e5f6789abcdef0",
+  "user": "64a1b2c3d4e5f6789abcdef1",
+  "pickup": "Times Square, New York",
+  "destination": "Central Park, New York",
+  "fare": 65.75,
+  "status": "pending",
+  "__v": 0
+}
+```
+
+#### Status Codes
+- `201`: Ride created successfully
+- `400`: Validation errors
+- `401`: Invalid or missing token
+- `500`: Server error
+
+#### Fare Calculation
+The fare is automatically calculated based on:
+- **Base Fare**: auto (₹30), car (₹50), moto (₹20)
+- **Per KM Rate**: auto (₹10), car (₹15), moto (₹8)
+- **Per Minute Rate**: auto (₹2), car (₹3), moto (₹1.5)
+
+Formula: `Base Fare + (Distance in KM × Per KM Rate) + (Duration in Minutes × Per Minute Rate)`
+
+---
+
+## Get Fare Estimate
+
+### `GET /rides/get-fare`
+
+Get a fare estimate for a ride between two locations. No authentication required.
+
+#### Query Parameters
+- `pickup`: Required, string, min 3 characters - Pickup location address
+- `destination`: Required, string, min 3 characters - Destination address
+
+#### Example Request
+```bash
+curl -X GET "http://localhost:3000/rides/get-fare?pickup=Times%20Square,%20New%20York&destination=Central%20Park,%20New%20York"
+```
+
+#### Response
+
+**Success (200)**
+```json
+{
+  "fare": 65.75
+}
+```
+
+#### Status Codes
+- `200`: Fare calculated successfully
+- `400`: Validation errors (missing or invalid parameters)
 - `500`: Server error
 
 ---

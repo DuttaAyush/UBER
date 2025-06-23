@@ -1,13 +1,16 @@
 import React, { useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import FinishRide from '../components/FinishRide'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
+import LiveTracking from '../components/LiveTracking'
 
 const CaptainRiding = () => {
 
   const [finishRidePanel, setFinishRidePanel] = useState(false)
   const finishRidePanelRef = useRef(null)
+  const location = useLocation()
+  const rideData = location.state?.ride
 
   useGSAP(function () {
     if (finishRidePanel) {
@@ -32,13 +35,12 @@ const CaptainRiding = () => {
         </Link>
       </div>
       <div className='h-4/5'>
-        <img className='h-full w-full object-cover' src="https://th.bing.com/th/id/R.578f6e7ec65c2ff02376bbc6d7256431?rik=6hMwL3YJReao1Q&riu=http%3a%2f%2fsimonpan.com%2fwp-content%2fthemes%2fsp_portfolio%2fassets%2fuber-challenge.jpg&ehk=%2bwFErRSi0XeYSyUY1Gfu0Rv7zSCtP4xDsvFKpAjsTRM%3d&risl=&pid=ImgRaw&r=0" alt="" />
-
+        <LiveTracking />
       </div>
       <div className='h-1/5 p-6 flex items-center justify-between relative bg-yellow-400'
-      onClick={()=>{
-        setFinishRidePanel(true)
-      }}
+        onClick={() => {
+          setFinishRidePanel(true)
+        }}
       >
         <h5 className='p-1 text-center w-[95%] absolute top-0' onClick={() => {
 
@@ -47,7 +49,9 @@ const CaptainRiding = () => {
         <button className=' mt-5 bg-green-600 text-white font-semibold p-3 px-10 rounded-lg'>Complete Ride</button>
       </div>
       <div ref={finishRidePanelRef} className='fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-10 pt-12'>
-        <FinishRide setFinishRidePanel={setFinishRidePanel} />
+        <FinishRide
+          ride={rideData}
+          setFinishRidePanel={setFinishRidePanel} />
       </div>
 
     </div>
